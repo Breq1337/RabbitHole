@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🕳️ Rabbit Hole
 
-## Getting Started
+**"Search one thing. Lose yourself in everything."**
 
-First, run the development server:
+A cinematic knowledge exploration platform that mixes a **knowledge graph**, **infinite discovery**, **surprising connections**, and a **mobile-first** dark UI. Built with Next.js, React, TailwindCSS, Framer Motion, and react-force-graph.
+
+## Features
+
+- **Smart search** — Type any topic (e.g. Einstein, Rome, AI) and explore its connections.
+- **Interactive knowledge graph** — Force-directed graph with zoom, drag, and node click.
+- **Discovery feed** — Cards with title, image, summary, and “interesting fact” next to the graph.
+- **Entity details** — Side panel and full entity page with Wikipedia summary and related entities.
+- **Exploration trail** — Path of visited entities with **shareable links** (e.g. `/explore/Q920-Q796`).
+- **Trending** — Top 5 most searched (mock data; plug in real analytics when ready).
+- **Random button** — “Take me somewhere random” for serendipitous discovery.
+- **First-visit quiz** — Optional preferences (Science, History, etc.) stored in `localStorage`.
+- **Dark, cinematic theme** — Deep black, neon accents, subtle glow.
+
+## Tech stack
+
+- **Frontend:** Next.js 16 (App Router), React 19, TailwindCSS 4, Framer Motion
+- **Graph:** react-force-graph (2D), d3-force
+- **APIs:** Wikidata (entities + relations), Wikipedia REST (summaries), optional Unsplash
+- **Caching:** In-memory (replace with Redis in production)
+- **Data:** No DB required for MVP; add PostgreSQL/Neo4j for history, achievements, users
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Home:** Search bar, trending, random button, quiz (first visit).
+- **Explore:** `/explore?q=Tesla` or `/explore?id=Q920` — graph, feed, details, trail.
+- **Share trail:** Copy `/explore/Q920-Q796` to recreate the path.
+- **Entity page:** `/entity/Q920` — full entity + related.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project structure
 
-## Learn More
+```
+src/
+├── app/
+│   ├── page.tsx              # Home (search, trending, random, quiz)
+│   ├── explore/
+│   │   ├── page.tsx          # Discovery (graph + feed + details + trail)
+│   │   └── [...slug]/        # Shareable trail route
+│   ├── entity/[id]/page.tsx  # Single entity page
+│   └── api/
+│       ├── search/           # Wikidata search
+│       ├── explore/          # Build graph + feed (by q or id)
+│       ├── trending/         # Top 5 (mock)
+│       ├── random/          # Random topic
+│       └── entity/[id]/      # Entity + related
+├── components/
+│   ├── SearchBar.tsx
+│   ├── TrendingSection.tsx
+│   ├── RandomButton.tsx
+│   ├── QuizModal.tsx
+│   ├── KnowledgeGraph.tsx   # Force-directed graph (2D)
+│   ├── DiscoveryFeed.tsx
+│   ├── EntityDetails.tsx
+│   └── ExplorationTrail.tsx
+├── lib/
+│   ├── wikidata.ts          # Search, get entity, relations
+│   ├── wikipedia.ts         # Summary by title
+│   ├── unsplash.ts          # Placeholder images
+│   ├── discovery.ts         # Build graph + feed + algorithm
+│   └── cache.ts             # In-memory cache
+└── types/
+    └── index.ts
+```
 
-To learn more about Next.js, take a look at the following resources:
+## APIs used
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Wikidata** — `wbsearchentities`, `wbgetentities` (labels, descriptions, claims).
+- **Wikipedia** — REST `page/summary/{title}` for extract and thumbnail.
+- Images from Wikimedia Commons (via Wikidata P18) or Wikipedia thumbnail; optional Unsplash with API key.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Next steps
 
-## Deploy on Vercel
+- **Achievements** — Explorer, Deep Diver, Rabbit Runner, etc., based on exploration (store in DB).
+- **User accounts** — Email/password; exploration history, saved discoveries, profile.
+- **Sound** — Short cinematic sounds on node discovery and achievements.
+- **Recommendation engine** — Direct / popular / unexpected relations (partially in `discovery.ts`).
+- **Database** — PostgreSQL or Neo4j for users, history, trending counts, cache.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT.
