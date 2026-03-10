@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 export const metadata: Metadata = {
-  title: "Rabbit Hole — Search one thing. Lose yourself in everything.",
-  description: "A cinematic knowledge exploration platform. Discover surprising connections between people, concepts, history, science, and culture.",
+  title: "Rabbit Hole — Pesquise uma coisa. Perda-se em tudo.",
+  description: "Plataforma cinematográfica de exploração do conhecimento. Descubra conexões surpreendentes entre pessoas, conceitos, história, ciência e cultura.",
 };
 
 export default function RootLayout({
@@ -12,9 +13,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="pt" className="dark">
       <body className="antialiased font-sans">
-        {children}
+        <LanguageProvider>
+          {children}
+        </LanguageProvider>
       </body>
     </html>
   );

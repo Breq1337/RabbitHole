@@ -1,6 +1,26 @@
 // Wikidata API client - entities and relations
 
 const WIKIDATA_API = 'https://www.wikidata.org/w/api.php';
+const USER_AGENT = 'RabbitHole/1.0 (https://github.com/rabbithole; contact@example.com)';
+
+export async function wikidataFetch(url: string): Promise<Response> {
+  return fetch(url, {
+    headers: { 'User-Agent': USER_AGENT },
+  });
+}
+
+async function parseJsonOrThrow<T>(res: Response): Promise<T> {
+  const text = await res.text();
+  const ct = res.headers.get('content-type') ?? '';
+  if (!ct.includes('application/json')) {
+    throw new Error(`Wikidata API returned ${res.status}: expected JSON, got ${ct.split(';')[0]}`);
+  }
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new Error(`Wikidata API returned invalid JSON (status ${res.status})`);
+  }
+}
 
 export interface WikidataSearchResult {
   id: string;
@@ -21,21 +41,26 @@ export interface WikidataEntity {
 }
 
 export async function searchWikidata(query: string, limit = 10): Promise<WikidataSearchResult[]> {
-  const params = new URLSearchParams({
-    action: 'wbsearchentities',
-    search: query,
-    language: 'en',
-    limit: String(limit),
-    format: 'json',
-    origin: '*',
-  });
-  const res = await fetch(`${WIKIDATA_API}?${params}`);
-  const data = await res.json();
-  return (data.search || []).map((s: { id: string; label: string; description?: string }) => ({
-    id: s.id,
-    label: s.label,
-    description: s.description,
-  }));
+  try {
+    const params = new URLSearchParams({
+      action: 'wbsearchentities',
+      search: query,
+      language: 'en',
+      limit: String(limit),
+      format: 'json',
+      origin: '*',
+    });
+    const res = await wikidataFetch(`${WIKIDATA_API}?${params}`);
+    const data = await parseJsonOrThrow<{ search?: { id: string; label: string; description?: string }[] }>(res);
+    return (data.search || []).map((s) => ({
+      id: s.id,
+      label: s.label,
+      description: s.description,
+    }));
+  } catch (e) {
+    console.warn('[Wikidata search]', e);
+    return [];
+  }
 }
 
 export async function getEntityWithRelations(
@@ -51,21 +76,21 @@ export async function getEntityWithRelations(
     format: 'json',
     origin: '*',
   });
-  const res = await fetch(`${WIKIDATA_API}?${params}`);
-  const data = await res.json();
+  const res = await wikidataFetch(`${WIKIDATA_API}?${params}`);
+  const data = await parseJsonOrThrow<{ entities?: Record<string, unknown> }>(res);
   const entities = data.entities || {};
-  const entity = entities[entityId];
+  const entity = entities[entityId] as WikidataEntity & { missing?: string } | undefined;
   if (!entity || entity.missing) {
     throw new Error('Entity not found');
   }
 
   const relations: { id: string; label: string; property: string }[] = [];
-  const claims = entity.claims || {};
+  const claims = (entity.claims || {}) as Record<string, Array<{ mainsnak?: { datavalue?: { value?: { id?: string } } } }>>;
 
   for (const prop of relationProperties) {
     const claimList = claims[prop];
     if (!claimList) continue;
-    for (const c of claimList.slice(0, 2)) {
+    for (const c of claimList.slice(0, 4)) {
       const value = c.mainsnak?.datavalue?.value;
       if (value?.id) {
         relations.push({ id: value.id, label: value.id, property: prop });
@@ -75,7 +100,7 @@ export async function getEntityWithRelations(
 
   // Resolve labels for relation IDs in batch
   if (relations.length > 0) {
-    const ids = [...new Set(relations.map((r) => r.id))].slice(0, 15);
+    const ids = [...new Set(relations.map((r) => r.id))].slice(0, 30);
     const labelParams = new URLSearchParams({
       action: 'wbgetentities',
       ids: ids.join('|'),
@@ -84,8 +109,8 @@ export async function getEntityWithRelations(
       format: 'json',
       origin: '*',
     });
-    const labelRes = await fetch(`${WIKIDATA_API}?${labelParams}`);
-    const labelData = await labelRes.json();
+    const labelRes = await wikidataFetch(`${WIKIDATA_API}?${labelParams}`);
+    const labelData = await parseJsonOrThrow<{ entities?: Record<string, { labels?: { en?: { value: string } } }> }>(labelRes);
     const labelEntities = labelData.entities || {};
     for (const r of relations) {
       const e = labelEntities[r.id];

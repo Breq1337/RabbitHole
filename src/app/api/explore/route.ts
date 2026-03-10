@@ -9,10 +9,10 @@ export async function GET(request: NextRequest) {
   }
   try {
     if (id) {
-      const data = await buildDiscoveryFromEntityId(id, { limit: 12, includeUnexpected: true });
+      const data = await buildDiscoveryFromEntityId(id, { limit: 22, includeUnexpected: true });
       return NextResponse.json(data);
     }
-    const data = await buildDiscoveryFromQuery(q!, { limit: 12, includeUnexpected: true });
+    const data = await buildDiscoveryFromQuery(q!, { limit: 22, includeUnexpected: true });
     return NextResponse.json(data);
   } catch (e) {
     console.error(e);

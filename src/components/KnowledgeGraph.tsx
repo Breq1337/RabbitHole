@@ -1,13 +1,21 @@
 'use client';
 
-import React, { useRef, useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { GraphData, Entity } from '@/types';
 
 const ForceGraph2D = dynamic(
-  () => import('react-force-graph').then((mod) => mod.ForceGraph2D),
-  { ssr: false }
+  () => import('react-force-graph-2d').then((mod) => mod.default),
+  { ssr: false, loading: () => <GraphLoading /> }
 );
+
+function GraphLoading() {
+  return (
+    <div className="w-full h-[360px] flex items-center justify-center bg-[var(--card-bg)] rounded-xl border border-[var(--border)]">
+      <div className="w-8 h-8 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
 
 interface KnowledgeGraphProps {
   data: GraphData;
@@ -16,8 +24,26 @@ interface KnowledgeGraphProps {
 }
 
 export function KnowledgeGraph({ data, onNodeClick, selectedId }: KnowledgeGraphProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const graphRef = useRef<{ zoomToFit: (duration?: number, padding?: number) => void } | null>(null);
   const initialFit = useRef(true);
+  const [mounted, setMounted] = useState(false);
+  const [dimensions, setDimensions] = useState({ width: 640, height: 360 });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || !containerRef.current) return;
+    const el = containerRef.current;
+    const ro = new ResizeObserver(() => {
+      if (el) setDimensions({ width: el.offsetWidth, height: el.offsetHeight });
+    });
+    ro.observe(el);
+    setDimensions({ width: el.offsetWidth, height: el.offsetHeight });
+    return () => ro.disconnect();
+  }, [mounted]);
 
   const handleNodeClick = useCallback(
     (node: { id: string; name?: string; entity?: Entity }) => {
@@ -29,25 +55,25 @@ export function KnowledgeGraph({ data, onNodeClick, selectedId }: KnowledgeGraph
   const nodeCanvasObject = useCallback(
     (node: unknown, ctx: CanvasRenderingContext2D, globalScale: number) => {
       const n = node as { id: string; name: string; x?: number; y?: number; val?: number; group?: string };
-      const label = n.name;
+      if (n.x == null || n.y == null) return;
+      const label = n.name ?? '';
       const fontSize = Math.max(10, 12 / globalScale);
       const isCenter = n.group === 'center';
       const isSelected = n.id === selectedId;
       const size = (n.val ?? 8) * (isCenter ? 1.5 : 1) + (isSelected ? 4 : 0);
 
       ctx.font = `${fontSize}px system-ui, sans-serif`;
-      const textWidth = ctx.measureText(label).width;
       const maxLabel = label.length > 18 ? label.slice(0, 16) + '…' : label;
 
       // Glow
       ctx.beginPath();
-      ctx.arc(n.x ?? 0, n.y ?? 0, size + 4, 0, 2 * Math.PI);
+      ctx.arc(n.x, n.y, size + 4, 0, 2 * Math.PI);
       ctx.fillStyle = isCenter || isSelected ? 'rgba(34, 211, 238, 0.25)' : 'rgba(34, 211, 238, 0.08)';
       ctx.fill();
 
       // Node circle
       ctx.beginPath();
-      ctx.arc(n.x ?? 0, n.y ?? 0, size, 0, 2 * Math.PI);
+      ctx.arc(n.x, n.y, size, 0, 2 * Math.PI);
       ctx.fillStyle = isCenter ? '#22d3ee' : isSelected ? '#22d3ee' : '#3f3f46';
       ctx.fill();
       ctx.strokeStyle = isSelected || isCenter ? '#22d3ee' : '#52525b';
@@ -57,8 +83,13 @@ export function KnowledgeGraph({ data, onNodeClick, selectedId }: KnowledgeGraph
       // Label
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillStyle = '#e8e8ed';
-      ctx.fillText(maxLabel, n.x ?? 0, (n.y ?? 0) + size + fontSize + 2);
+      const labelY = n.y + size + fontSize + 2;
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.lineWidth = 3;
+      ctx.lineJoin = 'round';
+      ctx.strokeText(maxLabel, n.x, labelY);
+      ctx.fillStyle = '#f4f4f5';
+      ctx.fillText(maxLabel, n.x, labelY);
     },
     [selectedId]
   );
@@ -74,29 +105,39 @@ export function KnowledgeGraph({ data, onNodeClick, selectedId }: KnowledgeGraph
 
   if (data.nodes.length === 0) {
     return (
-      <div className="w-full h-full min-h-[320px] flex items-center justify-center bg-[var(--card-bg)] rounded-xl border border-[var(--border)]">
+      <div className="w-full h-[360px] flex items-center justify-center bg-[var(--card-bg)] rounded-xl border border-[var(--border)]">
         <span className="text-[var(--muted)]">No graph data yet.</span>
       </div>
     );
   }
 
+  if (!mounted) {
+    return <GraphLoading />;
+  }
+
   return (
-    <div className="w-full h-full min-h-[320px] rounded-xl overflow-hidden bg-[var(--card-bg)] border border-[var(--border)] node-glow">
+    <div
+      ref={containerRef}
+      className="w-full h-[360px] min-h-[360px] rounded-xl overflow-hidden bg-[var(--card-bg)] border border-[var(--border)] node-glow"
+    >
       <ForceGraph2D
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ref={graphRef as any}
         graphData={data}
+        width={dimensions.width}
+        height={dimensions.height}
+        nodeCanvasObjectMode="replace"
         nodeLabel={(node) => (node as { name: string }).name}
         onNodeClick={(node: unknown) => handleNodeClick(node as { id: string; name?: string; entity?: Entity })}
         nodeCanvasObject={nodeCanvasObject}
-        linkColor={() => 'rgba(34, 211, 238, 0.35)'}
+        linkColor={() => 'rgba(34, 211, 238, 0.5)'}
         linkWidth={1.5}
-        backgroundColor="var(--card-bg)"
+        backgroundColor="#0c0c0f"
         nodeRelSize={6}
-        cooldownTicks={100}
+        cooldownTicks={120}
         onEngineStop={() => {
           if (initialFit.current && graphRef.current) {
-            graphRef.current.zoomToFit(400, 40);
+            graphRef.current.zoomToFit(400, 50);
             initialFit.current = false;
           }
         }}

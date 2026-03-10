@@ -8,6 +8,9 @@ import { KnowledgeGraph } from '@/components/KnowledgeGraph';
 import { DiscoveryFeed } from '@/components/DiscoveryFeed';
 import { EntityDetails } from '@/components/EntityDetails';
 import { ExplorationTrail } from '@/components/ExplorationTrail';
+import { ChromaPeopleGrid } from '@/components/ChromaPeopleGrid';
+import { LanguageToggle } from '@/components/LanguageToggle';
+import { useTranslation } from '@/contexts/LanguageContext';
 import type { Entity, DiscoveryCard, ExplorationStep } from '@/types';
 
 interface ExploreData {
@@ -17,6 +20,7 @@ interface ExploreData {
 }
 
 function ExploreLoading() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen bg-grid flex flex-col items-center justify-center p-4">
       <motion.div
@@ -24,7 +28,7 @@ function ExploreLoading() {
         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
         className="w-10 h-10 border-2 border-[var(--accent)] border-t-transparent rounded-full"
       />
-      <p className="mt-4 text-[var(--muted)]">Mapping connections…</p>
+      <p className="mt-4 text-[var(--muted)]">{t('mappingConnections')}</p>
     </div>
   );
 }
@@ -40,6 +44,7 @@ function ExploreContent() {
   const [error, setError] = useState<string | null>(null);
   const [selectedEntity, setSelectedEntity] = useState<Entity | null>(null);
   const [trail, setTrail] = useState<ExplorationStep[]>([]);
+  const { t } = useTranslation();
 
   const fetchExplore = useCallback(async () => {
     setLoading(true);
@@ -73,11 +78,11 @@ function ExploreContent() {
         setTrail(trailSteps);
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Something went wrong');
+      setError(e instanceof Error ? e.message : t('somethingWentWrong'));
     } finally {
       setLoading(false);
     }
-  }, [q, id, trailParam]);
+  }, [q, id, trailParam, t]);
 
   useEffect(() => {
     if (q || id) fetchExplore();
@@ -123,9 +128,9 @@ function ExploreContent() {
   if (!q && !id) {
     return (
       <div className="min-h-screen bg-grid flex flex-col items-center justify-center p-4">
-        <p className="text-[var(--muted)]">Enter a search term or select a trending topic.</p>
+        <p className="text-[var(--muted)]">{t('enterSearchOrTrending')}</p>
         <Link href="/" className="mt-4 text-[var(--accent)] hover:underline">
-          ← Back home
+          {t('backHome')}
         </Link>
       </div>
     );
@@ -138,9 +143,9 @@ function ExploreContent() {
   if (error || !data) {
     return (
       <div className="min-h-screen bg-grid flex flex-col items-center justify-center p-4">
-        <p className="text-red-400">{error || 'No data'}</p>
+        <p className="text-red-400">{error || t('noData')}</p>
         <Link href="/" className="mt-4 text-[var(--accent)] hover:underline">
-          ← Back home
+          {t('backHome')}
         </Link>
       </div>
     );
@@ -152,18 +157,21 @@ function ExploreContent() {
         <Link href="/" className="text-lg font-semibold text-[var(--foreground)]">
           🕳️ Rabbit Hole
         </Link>
-        <Link
-          href="/"
-          className="text-sm text-[var(--muted)] hover:text-[var(--accent)] transition-colors"
-        >
-          New search
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="text-sm text-[var(--muted)] hover:text-[var(--accent)] transition-colors"
+          >
+            {t('newSearch')}
+          </Link>
+          <LanguageToggle />
+        </div>
       </header>
 
       <div className="flex-1 p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 max-w-[1600px] mx-auto w-full">
         {/* Left: Discovery feed */}
         <aside className="lg:col-span-3 order-2 lg:order-1">
-          <h3 className="text-sm font-medium text-[var(--muted)] mb-3">Discovery feed</h3>
+          <h3 className="text-sm font-medium text-[var(--muted)] mb-3">{t('discoveryFeed')}</h3>
           <DiscoveryFeed
             feed={data.feed}
             onSelect={handleFeedSelect}
@@ -180,10 +188,29 @@ function ExploreContent() {
           />
         </section>
 
-        {/* Right: Entity details */}
-        <aside className="lg:col-span-3 order-3">
-          <h3 className="text-sm font-medium text-[var(--muted)] mb-3">Details</h3>
-          <EntityDetails entity={selectedEntity} />
+        {/* Right: Entity details + Related people */}
+        <aside className="lg:col-span-3 order-3 space-y-6">
+          <div>
+            <h3 className="text-sm font-medium text-[var(--muted)] mb-3">{t('details')}</h3>
+            <EntityDetails entity={selectedEntity} />
+          </div>
+          {data.feed.length > 0 && data.feed.some((c) => c.entity?.type === 'person') && (
+            <ChromaPeopleGrid
+              items={data.feed
+                .filter((c) => c.entity?.type === 'person')
+                .slice(0, 6)
+                .map((c) => ({
+                  id: c.entity!.id,
+                  name: c.entity!.name,
+                  image: c.entity!.image ?? c.image,
+                  description: c.entity!.summary ?? c.summary,
+                  entityId: c.entity!.id,
+                  href: `/explore?id=${c.entity!.id}`,
+                }))}
+              variant="related"
+              maxItems={6}
+            />
+          )}
         </aside>
       </div>
 

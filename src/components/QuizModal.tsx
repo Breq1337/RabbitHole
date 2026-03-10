@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 const QUIZ_TOPICS = [
   'Science',
@@ -12,17 +13,40 @@ const QUIZ_TOPICS = [
   'Psychology',
   'Art',
   'Random discoveries',
-];
+] as const;
 
-export function QuizModal() {
+const QUIZ_TOPIC_KEYS: Record<(typeof QUIZ_TOPICS)[number], 'quizTopicScience' | 'quizTopicHistory' | 'quizTopicTechnology' | 'quizTopicMovies' | 'quizTopicSpace' | 'quizTopicPsychology' | 'quizTopicArt' | 'quizTopicRandom'> = {
+  Science: 'quizTopicScience',
+  History: 'quizTopicHistory',
+  Technology: 'quizTopicTechnology',
+  Movies: 'quizTopicMovies',
+  Space: 'quizTopicSpace',
+  Psychology: 'quizTopicPsychology',
+  Art: 'quizTopicArt',
+  'Random discoveries': 'quizTopicRandom',
+};
+
+export function QuizModal({ forceOpen, onClose }: { forceOpen?: boolean; onClose?: () => void } = {}) {
   const [show, setShow] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const done = localStorage.getItem('rabbithole-quiz-done');
     if (!done) setShow(true);
   }, []);
+
+  const isOpen = show || Boolean(forceOpen);
+
+  const finish = () => {
+    localStorage.setItem('rabbithole-quiz-done', 'true');
+    if (selected.size > 0) {
+      localStorage.setItem('rabbithole-preferences', JSON.stringify({ topics: [...selected] }));
+    }
+    setShow(false);
+    onClose?.();
+  };
 
   const toggle = (topic: string) => {
     setSelected((prev) => {
@@ -33,17 +57,9 @@ export function QuizModal() {
     });
   };
 
-  const finish = () => {
-    localStorage.setItem('rabbithole-quiz-done', 'true');
-    if (selected.size > 0) {
-      localStorage.setItem('rabbithole-preferences', JSON.stringify({ topics: [...selected] }));
-    }
-    setShow(false);
-  };
-
   return (
     <AnimatePresence>
-      {show && (
+      {isOpen && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -60,10 +76,10 @@ export function QuizModal() {
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-xl font-semibold text-[var(--foreground)] mb-1">
-              What topics fascinate you?
+              {t('quizTitle')}
             </h3>
             <p className="text-sm text-[var(--muted)] mb-6">
-              We&apos;ll tailor your discovery feed. You can skip.
+              {t('quizSubtitle')}
             </p>
             <div className="grid grid-cols-2 gap-2 mb-6">
               {QUIZ_TOPICS.map((topic) => (
@@ -77,7 +93,7 @@ export function QuizModal() {
                       : 'border-[var(--border)] bg-transparent text-[var(--foreground)] hover:border-[var(--muted)]'
                   }`}
                 >
-                  {topic}
+                  {t(QUIZ_TOPIC_KEYS[topic])}
                 </button>
               ))}
             </div>
@@ -87,14 +103,14 @@ export function QuizModal() {
                 onClick={finish}
                 className="flex-1 py-3 rounded-xl bg-[var(--accent)] text-[var(--background)] font-medium hover:opacity-90 transition-opacity"
               >
-                Start exploring
+                {t('startExploring')}
               </button>
               <button
                 type="button"
                 onClick={finish}
                 className="py-3 px-4 rounded-xl border border-[var(--border)] text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
               >
-                Skip
+                {t('skip')}
               </button>
             </div>
           </motion.div>

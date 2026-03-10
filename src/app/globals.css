@@ -4,7 +4,23 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ========== RABBIT HOLE — Cinematic design tokens ========== */
+
 :root {
+  /* Motion */
+  --motion-fast: 150ms;
+  --motion-normal: 300ms;
+  --motion-slow: 500ms;
+  --motion-cinematic: 800ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Glow & atmosphere */
+  --glow-soft: 0 0 20px rgba(34, 211, 238, 0.12);
+  --glow-strong: 0 0 32px rgba(34, 211, 238, 0.28);
+  --glow-violet: 0 0 24px rgba(139, 92, 246, 0.2);
+
+  /* Existing */
   --muted: oklch(0.97 0 0);
   --accent: oklch(0.97 0 0);
   --accent-dim: rgba(34, 211, 238, 0.15);
@@ -100,25 +116,78 @@ body {
   min-height: 100vh;
 }
 
-/* Subtle grid background */
+/* Subtle grid background — cinematic, alive */
 .bg-grid {
   background-image:
-    linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(34, 211, 238, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.04) 1px, transparent 1px);
   background-size: 48px 48px;
+}
+
+/* Optional: stronger grid for hero */
+.bg-grid-hero {
+  background-image:
+    linear-gradient(rgba(34, 211, 238, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 211, 238, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
 /* Glow effects */
 .glow-text {
-  text-shadow: 0 0 24px var(--glow);
+  text-shadow: 0 0 24px var(--glow), 0 0 48px rgba(34, 211, 238, 0.15);
 }
 
 .glow-border {
-  box-shadow: 0 0 20px var(--accent-dim);
+  box-shadow: 0 0 20px var(--accent-dim), 0 0 0 1px rgba(34, 211, 238, 0.1);
+}
+
+.glow-border-strong {
+  box-shadow: var(--glow-strong), 0 0 0 1px rgba(34, 211, 238, 0.2);
 }
 
 .node-glow {
-  filter: drop-shadow(0 0 6px var(--glow));
+  filter: drop-shadow(0 0 8px var(--glow)) drop-shadow(0 0 20px rgba(34, 211, 238, 0.15));
+}
+
+/* Card spotlight — use with .card-spotlight and data-spotlight (JS sets --spot-x, --spot-y) */
+.card-spotlight {
+  position: relative;
+  overflow: hidden;
+}
+.card-spotlight::before {
+  content: '';
+  position: absolute;
+  inset: -100%;
+  background: radial-gradient(
+    400px circle at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(34, 211, 238, 0.06),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity var(--motion-normal) var(--ease-out);
+  pointer-events: none;
+}
+.card-spotlight:hover::before {
+  opacity: 1;
+}
+
+/* ========== Chroma Grid — premium card effects ========== */
+.chroma-glow {
+  box-shadow: 0 0 24px rgba(34, 211, 238, 0.12), 0 0 0 1px rgba(34, 211, 238, 0.08);
+}
+
+.chroma-glow-hover:hover {
+  box-shadow: 0 0 32px rgba(34, 211, 238, 0.18), 0 0 0 1px rgba(34, 211, 238, 0.15);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-normal: 0ms;
+    --motion-slow: 0ms;
+    --motion-cinematic: 0ms;
+  }
 }
 
 /* Scrollbar */
@@ -141,24 +210,24 @@ body {
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.87 0.00 0);
+  --background: oklch(0.12 0 0);
+  --foreground: oklch(0.97 0 0);
+  --card: oklch(0.16 0 0);
+  --card-foreground: oklch(0.97 0 0);
+  --popover: oklch(0.16 0 0);
+  --popover-foreground: oklch(0.97 0 0);
+  --primary: oklch(0.87 0 0);
   --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.371 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.28 0 0);
+  --secondary-foreground: oklch(0.97 0 0);
+  --muted: oklch(0.28 0 0);
+  --muted-foreground: oklch(0.78 0 0);
+  --accent: #22d3ee;
+  --accent-foreground: oklch(0.14 0 0);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --border: oklch(0.35 0 0);
+  --input: oklch(0.35 0 0);
+  --ring: oklch(0.65 0.12 195);
   --chart-1: oklch(0.809 0.105 251.813);
   --chart-2: oklch(0.623 0.214 259.815);
   --chart-3: oklch(0.546 0.245 262.881);
@@ -170,7 +239,7 @@ body {
   --sidebar-primary-foreground: oklch(0.985 0 0);
   --sidebar-accent: oklch(0.269 0 0);
   --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-border: oklch(0.28 0 0);
   --sidebar-ring: oklch(0.556 0 0);
 }
 

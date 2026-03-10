@@ -3,11 +3,13 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 export function SearchBar() {
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
@@ -22,12 +24,12 @@ export function SearchBar() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-2xl mx-auto">
-      <div className="relative glow-border rounded-2xl bg-[var(--card-bg)] border border-[var(--border)] overflow-hidden">
+      <div className="relative rounded-2xl bg-[var(--card-bg)]/80 border border-[var(--border)] overflow-hidden backdrop-blur-sm transition-all duration-300 focus-within:border-[var(--accent)]/40 focus-within:shadow-[0_0_28px_rgba(34,211,238,0.18)]">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Einstein, Dinosaurs, Rome, AI..."
+          placeholder={t('searchPlaceholder')}
           className="w-full py-4 px-6 pr-14 bg-transparent text-[var(--foreground)] placeholder-[var(--muted)] text-lg focus:outline-none focus:ring-0"
           disabled={isLoading}
           autoFocus
@@ -47,9 +49,6 @@ export function SearchBar() {
           )}
         </button>
       </div>
-      <p className="text-center text-[var(--muted)] text-sm mt-3">
-        Type anything. We&apos;ll map the connections.
-      </p>
     </form>
   );
 }

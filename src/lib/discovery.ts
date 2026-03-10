@@ -4,6 +4,7 @@ import type { Entity, GraphData, DiscoveryCard, ConnectionType } from '@/types';
 import { getEntityWithRelations, getEntityImage, getEntityLabel, getEntityDescription } from './wikidata';
 import { getWikipediaSummary } from './wikipedia';
 import { getFromCache, setCache } from './cache';
+import { generateInterestingFact } from './gemini';
 
 const RELATION_PROPS = [
   'P31',  // instance of
@@ -82,6 +83,18 @@ export async function enrichEntityWithWikipedia(entity: Entity): Promise<Entity>
     if (summary.thumbnail?.source) entity.image = summary.thumbnail.source;
     entity.wikipediaUrl = `https://en.wikipedia.org/wiki/${encodeURIComponent(title.replace(/ /g, '_'))}`;
   }
+  // Enriquecer com Gemini: fato interessante se tiver chave e ainda não tiver um bom interestingFact
+  try {
+    const geminiFact = await generateInterestingFact(
+      entity.name,
+      entity.summary || entity.description
+    );
+    if (geminiFact && (!entity.interestingFact || entity.interestingFact.length < 50)) {
+      entity.interestingFact = geminiFact;
+    }
+  } catch {
+    // ignora falha do Gemini; mantém dados da Wikipédia
+  }
   return entity;
 }
 
@@ -102,7 +115,7 @@ export async function buildDiscoveryFromEntityId(
   centerId: string,
   options: { limit?: number; includeUnexpected?: boolean } = {}
 ): Promise<{ graph: GraphData; feed: DiscoveryCard[]; centerEntity: Entity | null }> {
-  const limit = options.limit ?? 12;
+  const limit = options.limit ?? 22;
   const includeUnexpected = options.includeUnexpected ?? true;
 
   const centerEntity = await entityToEntity(centerId);
@@ -127,11 +140,11 @@ export async function buildDiscoveryFromEntityId(
 
   try {
     const { entity: wd, relations } = await getEntityWithRelations(centerId, RELATION_PROPS);
-    const direct = relations.slice(0, 6);
-    const popular = relations.slice(6, 10);
+    const direct = relations.slice(0, 10);
+    const popular = relations.slice(10, 18);
     const unexpected: { id: string; label: string }[] = [];
-    if (includeUnexpected && relations.length > 10) {
-      unexpected.push(...relations.slice(10, 12));
+    if (includeUnexpected && relations.length > 18) {
+      unexpected.push(...relations.slice(18, 24));
     }
 
     const allRelated = [...direct, ...popular, ...unexpected].slice(0, limit);

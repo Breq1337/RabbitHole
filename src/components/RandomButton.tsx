@@ -3,10 +3,12 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 export function RandomButton() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { t } = useTranslation();
 
   const handleClick = async () => {
     setLoading(true);
@@ -30,7 +32,7 @@ export function RandomButton() {
       whileTap={{ scale: 0.98 }}
     >
       <span className="text-xl">🎲</span>
-      <span>{loading ? 'Taking you somewhere…' : 'Take me somewhere random'}</span>
+      <span>{loading ? t('takingYou') : t('takeMeRandom')}</span>
     </motion.button>
   );
 }

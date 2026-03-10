@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useTranslation } from '@/contexts/LanguageContext';
 
 interface TrendingItem {
   name: string;
@@ -12,6 +13,7 @@ interface TrendingItem {
 
 export function TrendingSection() {
   const [trending, setTrending] = useState<TrendingItem[]>([]);
+  const { t } = useTranslation();
 
   useEffect(() => {
     fetch('/api/trending')
@@ -25,7 +27,7 @@ export function TrendingSection() {
   return (
     <section className="w-full max-w-2xl mx-auto mt-10">
       <h2 className="text-sm font-medium text-[var(--muted)] uppercase tracking-wider mb-3 flex items-center gap-2">
-        <span className="text-[var(--accent)]">🔥</span> Top 5 Most Searched (Last 24h)
+        <span className="text-[var(--accent)]">🔥</span> {t('trendingTitle')}
       </h2>
       <ul className="flex flex-wrap gap-2">
         {trending.map((item, i) => (
