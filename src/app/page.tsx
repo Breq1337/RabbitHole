@@ -5,11 +5,32 @@ import { SearchBar } from '@/components/SearchBar';
 import { TrendingSection } from '@/components/TrendingSection';
 import { RandomButton } from '@/components/RandomButton';
 import { QuizModal } from '@/components/QuizModal';
+import { FaultyTerminal } from '@/components/ui/FaultyTerminal';
 import Link from 'next/link';
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-grid">
+    <div className="min-h-screen relative">
+      {/* FaultyTerminal background - full viewport */}
+      <div className="fixed inset-0 w-full h-full -z-10">
+        <FaultyTerminal
+          scale={2.7}
+          digitSize={1.5}
+          scanlineIntensity={0.3}
+          glitchAmount={1}
+          flickerAmount={1}
+          noiseAmp={0}
+          chromaticAberration={0}
+          dither={0}
+          curvature={0.2}
+          tint="#ffffff"
+          mouseReact
+          mouseStrength={0.2}
+          brightness={1}
+        />
+      </div>
+
+      <div className="relative z-10 min-h-screen bg-grid">
       <QuizModal />
       <header className="pt-6 px-4 flex justify-between items-center max-w-4xl mx-auto">
         <Link href="/" className="text-lg font-semibold text-[var(--foreground)]">
@@ -64,6 +85,7 @@ export default function HomePage() {
       <footer className="py-6 text-center text-sm text-[var(--muted)]">
         A cinematic curiosity engine. No login required.
       </footer>
+    </div>
     </div>
   );
 }
