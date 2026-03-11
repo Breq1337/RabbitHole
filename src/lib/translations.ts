@@ -55,8 +55,11 @@ export const translations = {
     trail: 'Trilha',
     share: 'Compartilhar',
     shareTrail: 'Compartilhar esta trilha',
+<<<<<<< HEAD
     recenter: 'Centralizar',
     copied: 'Copiado',
+=======
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
 
     // Entity page
     missingEntityId: 'ID da entidade ausente.',
@@ -84,7 +87,10 @@ export const translations = {
     setAsStart: 'Definir como início',
     setAsTarget: 'Definir como destino',
     degreesOfSeparation: 'graus',
+<<<<<<< HEAD
     whyInPath: 'Nesta conexão',
+=======
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
 
     // Chroma Grid
     chromaTrendingTitle: 'Pessoas em alta',
@@ -145,8 +151,11 @@ export const translations = {
     trail: 'Trail',
     share: 'Share',
     shareTrail: 'Share this trail',
+<<<<<<< HEAD
     recenter: 'Recenter',
     copied: 'Copied',
+=======
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
 
     missingEntityId: 'Missing entity ID.',
     entityNotFound: 'Entity not found.',
@@ -171,7 +180,10 @@ export const translations = {
     setAsStart: 'Set as start',
     setAsTarget: 'Set as target',
     degreesOfSeparation: 'degrees',
+<<<<<<< HEAD
     whyInPath: 'In this connection',
+=======
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
 
     chromaTrendingTitle: 'Trending people',
     chromaTrendingSubtitle: 'Top searched in the last 24h',

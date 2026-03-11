@@ -1,9 +1,14 @@
+<<<<<<< HEAD
 // Bidirectional BFS: store/cache first, memoized neighbors per request, timeout, best-effort
+=======
+// Bidirectional BFS path search
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
 
 import type { Person, PersonEdge, ConnectionPath } from '@/types/connect';
 import { getPrunedNeighbors } from './peopleGraph';
 import { getPersonById } from './personResolver';
 import { getFromCache, setCache } from '@/lib/cache';
+<<<<<<< HEAD
 import { getDefaultGraphStore } from '@/lib/graphStore';
 import { rankPaths } from './pathRanking';
 
@@ -11,6 +16,13 @@ const MAX_DEPTH = 6;
 const TIMEOUT_MS = 25000;
 const PATH_CACHE_TTL = 86400;
 const MAX_NEIGHBORS = 15;
+=======
+import { rankPaths } from './pathRanking';
+
+const MAX_DEPTH = 6;
+const TIMEOUT_MS = 30000;
+const PATH_CACHE_TTL = 86400;
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
 
 interface BFSNode {
   id: string;
@@ -34,10 +46,13 @@ export async function findConnectionPath(
     };
   }
 
+<<<<<<< HEAD
   const store = getDefaultGraphStore();
   const pathFromStore = await store.getPath(personAId, personBId);
   if (pathFromStore) return pathFromStore;
 
+=======
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
   const cacheKey = `connect:path:${[personAId, personBId].sort().join(':')}`;
   const cached = getFromCache<ConnectionPath>(cacheKey);
   if (cached) return cached;
@@ -47,6 +62,7 @@ export async function findConnectionPath(
     if (Date.now() - start > TIMEOUT_MS) throw new Error('timeout');
   };
 
+<<<<<<< HEAD
   const neighborsMemo = new Map<string, PersonEdge[]>();
 
   async function getNeighbors(nodeId: string): Promise<PersonEdge[]> {
@@ -60,13 +76,20 @@ export async function findConnectionPath(
     return capped;
   }
 
+=======
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
   try {
     const queueA: BFSNode[] = [{ id: personAId, depth: 0, parentId: null, edge: null }];
     const queueB: BFSNode[] = [{ id: personBId, depth: 0, parentId: null, edge: null }];
     const visitedA = new Map<string, BFSNode>();
     const visitedB = new Map<string, BFSNode>();
+<<<<<<< HEAD
     visitedA.set(personAId, queueA[0]!);
     visitedB.set(personBId, queueB[0]!);
+=======
+    visitedA.set(personAId, queueA[0]);
+    visitedB.set(personBId, queueB[0]);
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
 
     let result: { meetingNode: string; fromA: BFSNode; fromB: BFSNode } | null = null;
 
@@ -76,7 +99,11 @@ export async function findConnectionPath(
       if (queueA.length > 0) {
         const node = queueA.shift()!;
         if (node.depth < MAX_DEPTH) {
+<<<<<<< HEAD
           const neighbors = await getNeighbors(node.id);
+=======
+          const neighbors = await getPrunedNeighbors(node.id);
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
           for (const edge of neighbors) {
             const nextId = edge.targetPersonId;
             if (visitedB.has(nextId)) {
@@ -88,12 +115,16 @@ export async function findConnectionPath(
               break;
             }
             if (!visitedA.has(nextId)) {
+<<<<<<< HEAD
               const next: BFSNode = {
                 id: nextId,
                 depth: node.depth + 1,
                 parentId: node.id,
                 edge,
               };
+=======
+              const next: BFSNode = { id: nextId, depth: node.depth + 1, parentId: node.id, edge };
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
               visitedA.set(nextId, next);
               queueA.push(next);
             }
@@ -107,7 +138,11 @@ export async function findConnectionPath(
       if (queueB.length > 0) {
         const node = queueB.shift()!;
         if (node.depth < MAX_DEPTH) {
+<<<<<<< HEAD
           const neighbors = await getNeighbors(node.id);
+=======
+          const neighbors = await getPrunedNeighbors(node.id);
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
           for (const edge of neighbors) {
             const nextId = edge.targetPersonId;
             if (visitedA.has(nextId)) {
@@ -119,12 +154,16 @@ export async function findConnectionPath(
               break;
             }
             if (!visitedB.has(nextId)) {
+<<<<<<< HEAD
               const next: BFSNode = {
                 id: nextId,
                 depth: node.depth + 1,
                 parentId: node.id,
                 edge,
               };
+=======
+              const next: BFSNode = { id: nextId, depth: node.depth + 1, parentId: node.id, edge };
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
               visitedB.set(nextId, next);
               queueB.push(next);
             }
@@ -138,6 +177,7 @@ export async function findConnectionPath(
       return { error: 'No connection found within six degrees.' };
     }
 
+<<<<<<< HEAD
     const path = await reconstructPath(
       personAId,
       personBId,
@@ -153,6 +193,14 @@ export async function findConnectionPath(
       return {
         error: 'Search timed out. Try people with more notable connections.',
       };
+=======
+    const path = await reconstructPath(personAId, personBId, result, visitedA, visitedB);
+    setCache(cacheKey, path, PATH_CACHE_TTL);
+    return path;
+  } catch (e) {
+    if ((e as Error).message === 'timeout') {
+      return { error: 'Search timed out. Try people with more notable connections.' };
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
     }
     throw e;
   }
@@ -181,11 +229,15 @@ async function reconstructPath(
     while (curB?.parentId) {
       const next = visitedB.get(curB.parentId);
       const revEdge = curB.edge
+<<<<<<< HEAD
         ? {
             ...curB.edge,
             sourcePersonId: curB.edge.targetPersonId,
             targetPersonId: curB.edge.sourcePersonId,
           }
+=======
+        ? { ...curB.edge, sourcePersonId: curB.edge.targetPersonId, targetPersonId: curB.edge.sourcePersonId }
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
         : null;
       pathB.push({ id: next!.id, edge: revEdge });
       curB = next;
@@ -199,11 +251,15 @@ async function reconstructPath(
     let curB: BFSNode | undefined = result.fromB;
     while (curB) {
       const revEdge = curB.edge
+<<<<<<< HEAD
         ? {
             ...curB.edge,
             sourcePersonId: curB.edge.targetPersonId,
             targetPersonId: curB.edge.sourcePersonId,
           }
+=======
+        ? { ...curB.edge, sourcePersonId: curB.edge.targetPersonId, targetPersonId: curB.edge.sourcePersonId }
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
         : null;
       pathB.push({ id: curB.id, edge: revEdge });
       curB = curB.parentId ? visitedB.get(curB.parentId) : undefined;
@@ -229,6 +285,7 @@ async function reconstructPath(
 
   const candidates = [{ persons, edges, raw: edgesRaw }];
   const ranked = await rankPaths(candidates);
+<<<<<<< HEAD
   const best =
     ranked[0] ??
     ({
@@ -237,6 +294,14 @@ async function reconstructPath(
       score: 0.8,
       length: persons.length - 1,
     } as ConnectionPath);
+=======
+  const best = ranked[0] ?? {
+    persons,
+    edges,
+    score: 0.8,
+    length: persons.length - 1,
+  };
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
 
   return best;
 }

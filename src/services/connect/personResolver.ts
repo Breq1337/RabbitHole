@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 // Person resolver: query -> Person with batched/parallel fetch and concurrency control
+=======
+// Person resolver: query string -> Person (Wikipedia + Wikidata)
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
 
 import type { Person } from '@/types/connect';
 import { searchWikidata, wikidataFetch } from '@/lib/wikidata';
@@ -7,6 +11,7 @@ import { getWikipediaUrl } from '@/lib/mediawiki';
 import { getFromCache, setCache } from '@/lib/cache';
 
 const HUMAN_QID = 'Q5';
+<<<<<<< HEAD
 const CONCURRENCY = 4;
 const ENTITY_BATCH_SIZE = 10;
 
@@ -19,21 +24,35 @@ export interface PersonCandidate {
 }
 
 interface EntityMeta {
+=======
+
+async function getWikidataEntity(wikidataId: string): Promise<{
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
   label: string;
   description?: string;
   image?: string;
   isHuman: boolean;
   sitelinks?: { enwiki?: { title: string } };
+<<<<<<< HEAD
 }
 
 async function getWikidataEntity(wikidataId: string): Promise<EntityMeta | null> {
+=======
+} | null> {
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
   try {
     const res = await wikidataFetch(
       `https://www.wikidata.org/w/api.php?action=wbgetentities&ids=${wikidataId}&props=labels|descriptions|claims|sitelinks&languages=en&format=json&origin=*`
     );
     const text = await res.text();
     const ct = res.headers.get('content-type') ?? '';
+<<<<<<< HEAD
     if (!ct.includes('application/json')) return null;
+=======
+    if (!ct.includes('application/json')) {
+      return null;
+    }
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
     const data = JSON.parse(text) as {
       entities?: Record<
         string,
@@ -56,6 +75,10 @@ async function getWikidataEntity(wikidataId: string): Promise<EntityMeta | null>
       (c) => c.mainsnak?.datavalue?.value?.id ?? []
     ) ?? [];
     const isHuman = instanceOf.includes(HUMAN_QID);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
     const label = entity.labels?.en?.value ?? wikidataId;
     const description = entity.descriptions?.en?.value;
     let image: string | undefined;
@@ -64,12 +87,19 @@ async function getWikidataEntity(wikidataId: string): Promise<EntityMeta | null>
       const filename = encodeURIComponent(String(P18).replace(/ /g, '_'));
       image = `https://commons.wikimedia.org/wiki/Special:FilePath/${filename}?width=400`;
     }
+<<<<<<< HEAD
     return { label, description, image, isHuman, sitelinks: entity.sitelinks };
+=======
+    const sitelinks = entity.sitelinks;
+
+    return { label, description, image, isHuman, sitelinks };
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
   } catch {
     return null;
   }
 }
 
+<<<<<<< HEAD
 /** Batch fetch entity meta for multiple IDs (one API call per batch). */
 async function getWikidataEntityBatch(ids: string[]): Promise<Map<string, EntityMeta>> {
   const out = new Map<string, EntityMeta>();
@@ -236,6 +266,9 @@ export async function getResolvedPersonById(wikidataId: string): Promise<Person 
 
 /** Full resolve: candidates + hydrate first N (backward compatible). */
 export async function resolvePerson(query: string, hydrateLimit = 5): Promise<Person[]> {
+=======
+export async function resolvePerson(query: string): Promise<Person[]> {
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
   const q = query.trim();
   if (!q) return [];
 
@@ -243,17 +276,65 @@ export async function resolvePerson(query: string, hydrateLimit = 5): Promise<Pe
   const cached = getFromCache<Person[]>(cacheKey);
   if (cached) return cached;
 
+<<<<<<< HEAD
   const candidates = await resolvePersonCandidates(q, hydrateLimit);
   if (candidates.length === 0) return [];
 
   const ids = candidates.map((c) => c.id);
   const peopleMap = await hydrateResolvedPeople(ids);
   const people = ids.map((id) => peopleMap.get(id)).filter((p): p is Person => p != null);
+=======
+  const results = await searchWikidata(q, 10);
+  const people: Person[] = [];
+
+  for (const r of results) {
+    const entity = await getWikidataEntity(r.id);
+    if (!entity || !entity.isHuman) continue;
+
+    const wikipediaTitle = entity.sitelinks?.enwiki?.title ?? r.label;
+    const summary = await getWikipediaSummary(wikipediaTitle);
+
+    const person: Person = {
+      id: r.id,
+      canonicalName: entity.label,
+      wikipediaTitle,
+      wikipediaUrl: getWikipediaUrl(wikipediaTitle),
+      image: entity.image ?? summary?.thumbnail?.source,
+      shortDescription: entity.description ?? summary?.extract?.slice(0, 150),
+    };
+    people.push(person);
+    if (people.length >= 5) break;
+  }
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
 
   setCache(cacheKey, people, 3600);
   return people;
 }
 
 export async function getPersonById(wikidataId: string): Promise<Person | null> {
+<<<<<<< HEAD
   return getResolvedPersonById(wikidataId);
+=======
+  const cacheKey = `connect:person:${wikidataId}`;
+  const cached = getFromCache<Person>(cacheKey);
+  if (cached) return cached;
+
+  const entity = await getWikidataEntity(wikidataId);
+  if (!entity || !entity.isHuman) return null;
+
+  const wikipediaTitle = entity.sitelinks?.enwiki?.title ?? entity.label;
+  const summary = await getWikipediaSummary(wikipediaTitle);
+
+  const person: Person = {
+    id: wikidataId,
+    canonicalName: entity.label,
+    wikipediaTitle,
+    wikipediaUrl: getWikipediaUrl(wikipediaTitle),
+    image: entity.image ?? summary?.thumbnail?.source,
+    shortDescription: entity.description ?? summary?.extract?.slice(0, 150),
+  };
+
+  setCache(cacheKey, person, 3600);
+  return person;
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
 }

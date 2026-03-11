@@ -4,7 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+<<<<<<< HEAD
     "dev:insecure": "cross-env NODE_TLS_REJECT_UNAUTHORIZED=0 next dev",
+=======
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -31,7 +34,10 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+<<<<<<< HEAD
     "cross-env": "^7.0.3",
+=======
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",

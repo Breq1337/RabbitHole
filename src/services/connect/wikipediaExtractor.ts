@@ -75,7 +75,11 @@ async function resolveTitleToQid(title: string): Promise<string | null> {
 
 async function resolveTitlesToQidsBatch(titles: string[]): Promise<Map<string, string>> {
   const unique = [...new Set(titles.map((t) => t.trim()).filter(Boolean))];
+<<<<<<< HEAD
   const BATCH = 15;
+=======
+  const BATCH = 5;
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
   const map = new Map<string, string>();
   for (let i = 0; i < unique.length; i += BATCH) {
     const chunk = unique.slice(i, i + BATCH);

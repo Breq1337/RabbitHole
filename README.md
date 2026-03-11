@@ -34,8 +34,11 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+<<<<<<< HEAD
 **Erro de certificado SSL (rede corporativa/escolar):** Se aparecer `unable to get local issuer certificate` ao usar Explore ou Connect, rode em desenvolvimento com verificação SSL desabilitada: `npm run dev:insecure`. Use apenas em ambiente local.
 
+=======
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
 - **Home:** Search bar, trending, random button, quiz (first visit).
 - **Explore:** `/explore?q=Tesla` or `/explore?id=Q920` — graph, feed, details, trail.
 - **Share trail:** Copy `/explore/Q920-Q796` to recreate the path.

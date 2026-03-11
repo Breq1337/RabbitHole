@@ -20,7 +20,11 @@ export default function ConnectPage() {
     setIsLoading(true);
     setResult(null);
     try {
+<<<<<<< HEAD
       const res = await fetch('/api/connect/find', {
+=======
+      const res = await fetch('/api/connect/search', {
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -100,6 +104,7 @@ export default function ConnectPage() {
           <HeroDualSearch onSearch={handleSearch} isLoading={isLoading} />
         </motion.div>
 
+<<<<<<< HEAD
         {(isLoading || result) && (
           <div className="w-full max-w-4xl mx-auto mt-8">
             {isLoading && (
@@ -110,6 +115,15 @@ export default function ConnectPage() {
                 <ConnectionResult path={result} />
                 {result.persons.length > 0 && (
                   <div className="mt-12 pt-8 border-t border-[var(--border)] max-w-2xl mx-auto px-4">
+=======
+        {result && (
+          <>
+            {isConnectionPath(result) ? (
+              <>
+                <ConnectionResult path={result} />
+                {result.persons.length > 0 && (
+                  <div className="mt-12 pt-8 border-t border-[var(--border)]">
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
                     <ChromaPeopleGrid
                       items={result.persons.map((p) => ({
                         id: p.id,
@@ -125,8 +139,12 @@ export default function ConnectPage() {
                   </div>
                 )}
               </>
+<<<<<<< HEAD
             )}
             {!isLoading && result && !isConnectionPath(result) && (
+=======
+            ) : (
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -135,7 +153,11 @@ export default function ConnectPage() {
                 {result.error}
               </motion.p>
             )}
+<<<<<<< HEAD
           </div>
+=======
+          </>
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
         )}
       </main>
       </div>

@@ -34,7 +34,11 @@ export function PersonSearchInput({
     }
     setIsLoading(true);
     try {
+<<<<<<< HEAD
       const res = await fetch('/api/connect/autocomplete', {
+=======
+      const res = await fetch('/api/connect/resolve', {
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query: q }),

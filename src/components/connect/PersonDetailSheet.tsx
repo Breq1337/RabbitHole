@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+<<<<<<< HEAD
 import type { Person, ConnectionPath } from '@/types/connect';
 import { useTranslation } from '@/contexts/LanguageContext';
 
@@ -18,6 +19,14 @@ interface PersonDetailSheetProps {
   person: Person | null;
   relationLabel?: string;
   pathContext?: PathContext | null;
+=======
+import type { Person } from '@/types/connect';
+import { useTranslation } from '@/contexts/LanguageContext';
+
+interface PersonDetailSheetProps {
+  person: Person | null;
+  relationLabel?: string;
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
   onClose: () => void;
   onSetAsStart?: () => void;
   onSetAsTarget?: () => void;
@@ -26,7 +35,10 @@ interface PersonDetailSheetProps {
 export function PersonDetailSheet({
   person,
   relationLabel,
+<<<<<<< HEAD
   pathContext,
+=======
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
   onClose,
   onSetAsStart,
   onSetAsTarget,
@@ -34,12 +46,15 @@ export function PersonDetailSheet({
   const { t } = useTranslation();
   if (!person) return null;
 
+<<<<<<< HEAD
   const prevName = pathContext?.prevPerson?.canonicalName ?? '?';
   const nextName = pathContext?.nextPerson?.canonicalName ?? '?';
   const fromLabel = pathContext?.edgeFromLabel ?? relationLabel ?? '—';
   const toLabel = pathContext?.edgeToLabel ?? '—';
   const showWhyInPath = pathContext && (pathContext.prevPerson || pathContext.nextPerson);
 
+=======
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
   return (
     <>
       <motion.div
@@ -55,12 +70,18 @@ export function PersonDetailSheet({
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()}
+<<<<<<< HEAD
         className="fixed bottom-0 left-0 right-0 z-[51] sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:max-w-md sm:rounded-t-2xl sm:rounded-b-none bg-[var(--card-bg)] border border-[var(--border)] border-b-0 overflow-hidden shadow-2xl max-h-[85vh] flex flex-col"
       >
         <div className="flex-shrink-0 p-4 border-b border-[var(--border)]">
           <div className="w-8 h-1 rounded-full bg-[var(--muted)]/50 mx-auto" aria-hidden />
         </div>
         <div className="flex-1 overflow-y-auto p-6">
+=======
+        className="fixed bottom-0 left-0 right-0 z-[51] sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:max-w-md sm:rounded-t-2xl sm:rounded-b-none bg-[var(--card-bg)] border border-[var(--border)] border-b-0 overflow-hidden shadow-2xl"
+      >
+        <div className="p-6">
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
           <div className="flex items-start gap-4">
             {person.image ? (
               <div className="relative w-20 h-20 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-[var(--accent)]/30">
@@ -82,11 +103,21 @@ export function PersonDetailSheet({
               <h3 className="text-xl font-semibold text-[var(--foreground)]">
                 {person.canonicalName}
               </h3>
+<<<<<<< HEAD
               {relationLabel && !showWhyInPath && (
                 <p className="text-sm text-[var(--accent)] mt-1">{relationLabel}</p>
               )}
               {person.shortDescription && (
                 <p className="text-sm text-[var(--muted-foreground)] mt-2 line-clamp-3">
+=======
+              {relationLabel && (
+                <p className="text-sm text-[var(--accent)] mt-1">
+                  {relationLabel}
+                </p>
+              )}
+              {person.shortDescription && (
+                <p className="text-sm text-[var(--muted-foreground)] mt-2 line-clamp-2">
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
                   {person.shortDescription}
                 </p>
               )}
@@ -94,7 +125,11 @@ export function PersonDetailSheet({
             <button
               type="button"
               onClick={onClose}
+<<<<<<< HEAD
               className="p-2 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--muted)]/30 transition-colors flex-shrink-0"
+=======
+              className="p-2 rounded-lg text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--muted)]/30 transition-colors"
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
               aria-label="Close"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,6 +137,7 @@ export function PersonDetailSheet({
               </svg>
             </button>
           </div>
+<<<<<<< HEAD
 
           {showWhyInPath && (
             <div className="mt-4 p-3 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/20">
@@ -129,16 +165,32 @@ export function PersonDetailSheet({
             >
               {t('exploreFromHere')}
             </a>
+=======
+          <div className="flex flex-wrap gap-2 mt-4">
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
             {person.wikipediaUrl && (
               <a
                 href={person.wikipediaUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+<<<<<<< HEAD
                 className="text-sm px-3 py-2 rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:border-[var(--accent)]/50 transition-colors"
+=======
+                className="text-sm px-3 py-2 rounded-lg bg-[var(--accent)]/15 text-[var(--accent)] hover:bg-[var(--accent)]/25 transition-colors"
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
               >
                 {t('readOnWikipedia')}
               </a>
             )}
+<<<<<<< HEAD
+=======
+            <a
+              href={`/explore?id=${person.id}`}
+              className="text-sm px-3 py-2 rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:border-[var(--accent)]/50 transition-colors"
+            >
+              {t('exploreFromHere')}
+            </a>
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
             {onSetAsStart && (
               <button
                 type="button"

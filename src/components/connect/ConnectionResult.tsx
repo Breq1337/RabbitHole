@@ -1,5 +1,6 @@
 'use client';
 
+<<<<<<< HEAD
 import { useRef, useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { motion } from 'framer-motion';
@@ -9,6 +10,15 @@ import { ConnectionGraph } from './ConnectionGraph';
 import { useGraphPanZoom } from '@/hooks/useGraphPanZoom';
 import { useTranslation } from '@/contexts/LanguageContext';
 import { Maximize2, Share2 } from 'lucide-react';
+=======
+import { useState } from 'react';
+import { AnimatePresence } from 'framer-motion';
+import type { ConnectionPath } from '@/types/connect';
+import { PersonDetailSheet } from './PersonDetailSheet';
+import { ConnectionPathGraph } from './ConnectionPathGraph';
+import { motion } from 'framer-motion';
+import { useTranslation } from '@/contexts/LanguageContext';
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
 
 function personToSlug(name: string): string {
   return encodeURIComponent(
@@ -21,6 +31,7 @@ function personToSlug(name: string): string {
   );
 }
 
+<<<<<<< HEAD
 export interface ConnectionResultProps {
   path?: ConnectionPath;
   isLoading?: boolean;
@@ -46,6 +57,21 @@ export function ConnectionResult({ path, isLoading = false }: ConnectionResultPr
 
   const shareUrl =
     path && path.persons.length >= 2
+=======
+interface ConnectionResultProps {
+  path: ConnectionPath;
+}
+
+export function ConnectionResult({ path }: ConnectionResultProps) {
+  const { t } = useTranslation();
+  const [copied, setCopied] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const selectedPerson = selectedIndex != null ? path.persons[selectedIndex] ?? null : null;
+  const relationLabel = selectedIndex != null && path.edges[selectedIndex] ? path.edges[selectedIndex]!.label : undefined;
+
+  const shareUrl =
+    path.persons.length >= 2
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
       ? `${typeof window !== 'undefined' ? window.location.origin : ''}/connect/${personToSlug(path.persons[0].canonicalName)}/${personToSlug(path.persons[path.persons.length - 1].canonicalName)}`
       : '';
 
@@ -60,6 +86,7 @@ export function ConnectionResult({ path, isLoading = false }: ConnectionResultPr
     }
   };
 
+<<<<<<< HEAD
   if (isLoading) {
     return (
       <motion.div
@@ -82,11 +109,14 @@ export function ConnectionResult({ path, isLoading = false }: ConnectionResultPr
 
   if (!path || path.persons.length === 0) return null;
 
+=======
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
+<<<<<<< HEAD
       className="mt-8 rounded-2xl bg-[var(--card-bg)]/60 border border-[var(--border)] overflow-hidden"
     >
       <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
@@ -104,11 +134,22 @@ export function ConnectionResult({ path, isLoading = false }: ConnectionResultPr
             <Maximize2 className="w-4 h-4" />
             <span className="hidden sm:inline">{t('recenter')}</span>
           </button>
+=======
+      className="mt-8 p-6 rounded-2xl bg-[var(--card-bg)]/60 border border-[var(--border)]"
+    >
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2">
+        <span className="text-sm text-[var(--muted-foreground)]">
+          {t('connectionLength')}:
+        </span>
+        <span className="font-semibold text-[var(--accent)]">{path.length}</span>
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
         </div>
         {shareUrl && (
           <button
             type="button"
             onClick={handleShare}
+<<<<<<< HEAD
             className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg bg-[var(--accent)]/15 text-[var(--accent)] hover:bg-[var(--accent)]/25 transition-colors"
           >
             <Share2 className="w-4 h-4" />
@@ -137,10 +178,23 @@ export function ConnectionResult({ path, isLoading = false }: ConnectionResultPr
 
       <AnimatePresence>
         {selectedPerson && (
+=======
+            className="text-sm px-3 py-1.5 rounded-lg bg-[var(--accent)]/15 text-[var(--accent)] hover:bg-[var(--accent)]/25 transition-colors"
+          >
+            {copied ? '✓ ' : ''}{t('share')}
+          </button>
+        )}
+      </div>
+      <div className="relative">
+        <ConnectionPathGraph path={path} onPersonClick={(i) => setSelectedIndex(i)} />
+        <AnimatePresence>
+          {selectedPerson && (
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
           <PersonDetailSheet
             key="detail"
             person={selectedPerson}
             relationLabel={relationLabel}
+<<<<<<< HEAD
             pathContext={{
               path,
               selectedIndex: selectedIndex ?? 0,
@@ -153,6 +207,13 @@ export function ConnectionResult({ path, isLoading = false }: ConnectionResultPr
           />
         )}
       </AnimatePresence>
+=======
+            onClose={() => setSelectedIndex(null)}
+          />
+          )}
+        </AnimatePresence>
+      </div>
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
     </motion.div>
   );
 }

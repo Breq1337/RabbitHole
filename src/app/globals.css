@@ -20,6 +20,7 @@
   --glow-strong: 0 0 32px rgba(34, 211, 238, 0.28);
   --glow-violet: 0 0 24px rgba(139, 92, 246, 0.2);
 
+<<<<<<< HEAD
   /* Graph — node & edge */
   --graph-node-size: 72px;
   --graph-node-size-desktop: 88px;
@@ -31,6 +32,8 @@
   --graph-edge-draw-duration: 400ms;
   --graph-edge-label-size: 11px;
 
+=======
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
   /* Existing */
   --muted: oklch(0.97 0 0);
   --accent: oklch(0.97 0 0);
@@ -198,7 +201,10 @@ body {
     --motion-normal: 0ms;
     --motion-slow: 0ms;
     --motion-cinematic: 0ms;
+<<<<<<< HEAD
     --graph-edge-draw-duration: 0ms;
+=======
+>>>>>>> 27823babd34dc607940de5ccd0a48669d086112f
   }
 }
 
